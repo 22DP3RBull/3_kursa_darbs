@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="js">
 import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';

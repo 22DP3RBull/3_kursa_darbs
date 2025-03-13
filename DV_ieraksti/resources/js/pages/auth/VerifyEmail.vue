@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="js">
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import AuthLayout from '@/layouts/AuthLayout.vue';

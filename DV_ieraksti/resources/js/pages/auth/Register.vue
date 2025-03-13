@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="js">
 import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
+import '../../../css/auth.css';
 
 const form = useForm({
     name: '',
@@ -23,10 +24,10 @@ const submit = () => {
 </script>
 
 <template>
-    <AuthBase title="Create an account" description="Enter your details below to create your account">
+    <div class="container">
         <Head title="Register" />
-
-        <form @submit.prevent="submit" class="flex flex-col gap-6">
+        <h1>Create an account</h1>
+        <!-- <form @submit.prevent="submit" class="flex flex-col gap-6">
             <div class="grid gap-6">
                 <div class="grid gap-2">
                     <Label for="name">Name</Label>
@@ -76,8 +77,8 @@ const submit = () => {
 
             <div class="text-center text-sm text-muted-foreground">
                 Already have an account?
-                <TextLink :href="route('login')" class="underline underline-offset-4" :tabindex="6">Log in</TextLink>
+                <TextLink :href="route('login')" class="text-link" :tabindex="6">Log in</TextLink>
             </div>
-        </form>
-    </AuthBase>
+        </form> -->
+    </div>
 </template>

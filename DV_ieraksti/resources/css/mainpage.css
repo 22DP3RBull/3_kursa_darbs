@@ -1,0 +1,184 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&display=swap');
+
+body {
+    font-family: 'Roboto', 'Open Sans', sans-serif;
+    background: linear-gradient(135deg, #820000, #90A959);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+
+.header, .footer {
+    background-color: #820000;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    position: fixed;
+    width: calc(100% - 20px);
+    left: 10px;
+    right: 10px;
+    z-index: 1000;
+}
+
+.header {
+    top: 10px;
+    border-radius: 10px 10px 0 0;
+}
+
+.footer {
+    bottom: 10px;
+    border-radius: 0 0 10px 10px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.container {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    max-width: 600px;
+    width: 100%;
+    margin: 80px auto 20px auto; /* Adjusted margin to account for fixed header and footer */
+    text-align: center;
+}
+
+h1 {
+    color: #333333;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+input[type="text"], select {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:hover, select:hover {
+    border-color: #90A959;
+    box-shadow: 0 4px 8px rgba(144, 169, 89, 0.2);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #b2dfdb;
+}
+
+th {
+    background-color: #004d40;
+    color: white;
+}
+
+td {
+    background-color: #e0f2f1;
+    color: #004d40;
+}
+
+button {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+button:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+button.check-in {
+    background-color: #4caf50;
+}
+
+button.check-in:hover {
+    background-color: #45a049;
+}
+
+button.check-out {
+    background-color: #f44336;
+}
+
+button.check-out:hover {
+    background-color: #e53935;
+}
+
+.icon-button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 5px;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.icon-button img {
+    width: 24px;
+    height: 24px;
+}
+
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 400px;
+    width: 100%;
+    color: #004d40;
+}
+
+.popup-content h2, .popup-content h3, .popup-content button, .popup-content select {
+    color: #004d40;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+    }
+
+    th, td {
+        padding: 5px;
+    }
+
+    input[type="text"], select, button {
+        padding: 10px;
+        font-size: 16px;
+    }
+}
