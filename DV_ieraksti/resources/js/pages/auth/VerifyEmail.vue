@@ -1,4 +1,4 @@
-<script setup lang="js">
+<!-- <script setup lang="js">
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import AuthLayout from '@/layouts/AuthLayout.vue';
@@ -33,4 +33,4 @@ const submit = () => {
             <TextLink :href="route('logout')" method="post" as="button" class="mx-auto block text-sm"> Log out </TextLink>
         </form>
     </AuthLayout>
-</template>
+</template> -->
