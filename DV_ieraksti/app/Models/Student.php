@@ -14,11 +14,15 @@ class Student extends Model
     protected $fillable = [
         'name',
         'surname',
-        'room',
         'floor',
+        'room',
         'phone',
         'email',
-        'check_in_status',
+        'checkedIn',
+    ];
+
+    protected $attributes = [
+        'checkedIn' => false,
     ];
 
     public static function validate($data)
@@ -30,7 +34,7 @@ class Student extends Model
             'floor' => 'required|integer|between:1,5',
             'phone' => 'required|string|size:8',
             'email' => 'required|string|email|unique:students,email|regex:/@rvt\.lv$/',
-            'check_in_status' => 'boolean',
+            'checkedIn' => 'boolean',
         ]);
 
         $validator->after(function ($validator) use ($data) {

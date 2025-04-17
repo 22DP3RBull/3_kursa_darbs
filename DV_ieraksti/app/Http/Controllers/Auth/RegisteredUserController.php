@@ -18,7 +18,7 @@ class RegisteredUserController extends Controller
     /**
      * Show the registration page.
      */
-    public function create(): Response
+    public function create(): x
     {
         // return Inertia::render('auth/Register');
     }

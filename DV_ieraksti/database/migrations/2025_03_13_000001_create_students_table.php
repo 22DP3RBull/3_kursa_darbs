@@ -17,11 +17,11 @@ class CreateStudentsTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('surname');
-            $table->integer('room')->check('room BETWEEN 101 AND 128');
-            $table->integer('floor')->check('floor BETWEEN 1 AND 5');
+            $table->integer('floor');
+            $table->integer('room');
             $table->string('phone', 8);
-            $table->string('email')->unique()->check('email LIKE "%@rvt.lv"');
-            $table->boolean('check_in_status')->default(false);
+            $table->string('email')->unique();
+            $table->boolean('checkedIn')->default(false);
             $table->timestamps();
         });
     }

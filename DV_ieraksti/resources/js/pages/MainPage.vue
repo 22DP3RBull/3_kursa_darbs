@@ -80,15 +80,23 @@ const fetchStudentsByFloor = () => {
 };
 
 const checkIn = async (id) => {
-  await axios.patch(`/students/${id}`, { check_in_status: true });
-  fetchStudents();
-  closeCheckInPopup();
+  try {
+    await axios.patch(`/students/${id}/checked-in`, { checkedIn: true });
+    fetchStudents();
+    closeCheckInPopup();
+  } catch (error) {
+    console.error('Error checking in:', error);
+  }
 };
 
 const checkOut = async (id) => {
-  await axios.patch(`/students/${id}`, { check_in_status: false });
-  fetchStudents();
-  closeCheckOutPopup();
+  try {
+    await axios.patch(`/students/${id}/checked-in`, { checkedIn: false });
+    fetchStudents();
+    closeCheckOutPopup();
+  } catch (error) {
+    console.error('Error checking out:', error);
+  }
 };
 
 const openCheckInPopup = () => {
