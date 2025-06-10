@@ -22,7 +22,7 @@
     --card-text: #000000;
 }
 
-body.dark-mode {
+.dark-mode {
     /* Dark mode colors */
     --background-color: #121212 !important;
     --text-color: #ffffff !important;
@@ -124,13 +124,32 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.footer a {
-    color: var(--link-color);
-    transition: text-decoration 0.2s ease;
+.footer-left {
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
 
-.footer a:hover {
-    text-decoration: underline;
+.footer-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1rem;
+}
+
+.login-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--footer-text);
+}
+
+.login-icon svg {
+    width: 24px;
+    height: 24px;
+    color: var(--footer-text);
 }
 
 /* Theme Toggle Button */

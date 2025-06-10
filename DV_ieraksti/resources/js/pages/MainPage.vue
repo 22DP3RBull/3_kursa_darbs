@@ -1,7 +1,7 @@
 <script setup lang="js">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
-import { Sun, Moon, LogIn } from 'lucide-vue-next';
+import { Sun, Moon } from 'lucide-vue-next';
 import '../../css/mainpage.css';
 
 const floors = ref([1, 2, 3, 4, 5]);
@@ -14,10 +14,12 @@ const showCheckInPopup = ref(false);
 const showCheckOutPopup = ref(false);
 const isDarkMode = ref(localStorage.getItem('isDarkMode') === 'true');
 
-const fetchRooms = async () => {
+// Fetch rooms for the selected floor only
+const fetchRooms = async (floor = null) => {
   try {
-    const response = await axios.get('/rooms'); // Ensure this endpoint exists
-    console.log('Rooms fetched:', response.data); // Log the response for debugging
+    let url = '/rooms';
+    if (floor) url += `?floor=${floor}`;
+    const response = await axios.get(url);
     rooms.value = response.data;
   } catch (error) {
     console.error('Error fetching rooms:', error);
@@ -33,11 +35,36 @@ const fetchStudents = async () => {
   }
 };
 
+onMounted(() => {
+  if (isDarkMode.value) {
+    document.body.classList.add('dark-mode');
+  } else {
+    document.body.classList.remove('dark-mode');
+  }
+  fetchStudents();
+});
+
+// Watch for floor selection to fetch rooms for that floor
+watch(selectedFloor, (floor) => {
+  selectedRoom.value = '';
+  selectedStudent.value = null;
+  if (floor) {
+    fetchRooms(floor);
+  } else {
+    rooms.value = [];
+  }
+});
+
 const checkIn = async () => {
   try {
-    await axios.post('/check-in', { student_id: selectedStudent.value });
+    // PATCH /students/{id}/checked-in with { checkedIn: true }
+    await axios.patch(`/students/${selectedStudent.value}/checked-in`, { checkedIn: true });
     showCheckInPopup.value = false;
     fetchStudents();
+    // Reset fields after check-in
+    selectedFloor.value = '';
+    selectedRoom.value = '';
+    selectedStudent.value = null;
   } catch (error) {
     console.error('Error checking in:', error);
   }
@@ -45,9 +72,13 @@ const checkIn = async () => {
 
 const checkOut = async () => {
   try {
-    await axios.post('/check-out', { student_id: selectedStudent.value });
+    await axios.patch(`/students/${selectedStudent.value}/checked-in`, { checkedIn: false });
     showCheckOutPopup.value = false;
     fetchStudents();
+    // Reset fields after check-out
+    selectedFloor.value = '';
+    selectedRoom.value = '';
+    selectedStudent.value = null;
   } catch (error) {
     console.error('Error checking out:', error);
   }
@@ -73,28 +104,20 @@ const toggleDarkMode = () => {
   isDarkMode.value = !isDarkMode.value;
   localStorage.setItem('isDarkMode', isDarkMode.value);
   if (isDarkMode.value) {
-    document.documentElement.classList.add('dark'); // Add 'dark' class for dark mode
+    document.body.classList.add('dark-mode');
   } else {
-    document.documentElement.classList.remove('dark'); // Remove 'dark' class for light mode
+    document.body.classList.remove('dark-mode');
   }
 };
 
-const filteredRooms = computed(() => {
-  if (!selectedFloor.value) return [];
-  return rooms.value.filter(room => room.floor == selectedFloor.value); // Ensure '==' for type coercion
-});
-
 const filteredStudents = computed(() => {
   if (!selectedRoom.value) return [];
-  return students.value.filter(student => student.room === selectedRoom.value);
+  return students.value.filter(student => String(student.room) === String(selectedRoom.value));
 });
-
-fetchRooms();
-fetchStudents();
 </script>
 
 <template>
-  <div :class="{ 'dark-mode': isDarkMode }">
+  <div>
     <!-- Navbar -->
     <nav class="navbar">
       <div class="navbar-left">
@@ -119,18 +142,21 @@ fetchStudents();
     <div v-if="showCheckInPopup" class="popup" @click.self="closePopups">
       <div class="popup-content">
         <h2>Check In</h2>
+        <!-- Step 1: Select Floor -->
         <h3>Select Floor</h3>
         <select v-model="selectedFloor">
           <option value="" disabled>Select Floor</option>
           <option v-for="floor in floors" :key="floor" :value="floor">{{ floor }}</option>
         </select>
+        <!-- Step 2: Select Room (only after floor is selected) -->
         <h3 v-if="selectedFloor">Select Room</h3>
         <select v-if="selectedFloor" v-model="selectedRoom">
           <option value="" disabled>Select Room</option>
-          <option v-for="room in filteredRooms" :key="room.id" :value="room.id">
+          <option v-for="room in rooms" :key="room.id" :value="room.room">
             Room {{ room.room }}
           </option>
         </select>
+        <!-- Step 3: Select Student (only after room is selected) -->
         <h3 v-if="selectedRoom">Select Student</h3>
         <select v-if="selectedRoom" v-model="selectedStudent">
           <option value="" disabled>Select Student</option>
@@ -149,18 +175,21 @@ fetchStudents();
     <div v-if="showCheckOutPopup" class="popup" @click.self="closePopups">
       <div class="popup-content">
         <h2>Check Out</h2>
+        <!-- Step 1: Select Floor -->
         <h3>Select Floor</h3>
         <select v-model="selectedFloor">
           <option value="" disabled>Select Floor</option>
           <option v-for="floor in floors" :key="floor" :value="floor">{{ floor }}</option>
         </select>
+        <!-- Step 2: Select Room (only after floor is selected) -->
         <h3 v-if="selectedFloor">Select Room</h3>
         <select v-if="selectedFloor" v-model="selectedRoom">
           <option value="" disabled>Select Room</option>
-          <option v-for="room in filteredRooms" :key="room.id" :value="room.id">
+          <option v-for="room in rooms" :key="room.id" :value="room.room">
             Room {{ room.room }}
           </option>
         </select>
+        <!-- Step 3: Select Student (only after room is selected) -->
         <h3 v-if="selectedRoom">Select Student</h3>
         <select v-if="selectedRoom" v-model="selectedStudent">
           <option value="" disabled>Select Student</option>
@@ -183,9 +212,12 @@ fetchStudents();
           <Moon v-else class="text-white w-6 h-6" />
         </button>
       </div>
+      <div class="footer-center">
+        Contact us at: <a href="mailto:info@example.com" class="login-icon">info@example.com</a>
+      </div>
       <div class="footer-right">
         <a href="/login" class="login-icon">
-          <LogIn class="text-white w-6 h-6" />
+          <svg class="text-white w-6 h-6" viewBox="0 0 24 24" fill="none"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="10 17 15 12 10 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="15" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
       </div>
     </footer>
@@ -204,6 +236,14 @@ fetchStudents();
   display: flex;
   gap: 10px;
   align-items: center;
+}
+
+.footer-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
 }
 
 .footer-right {
@@ -229,6 +269,9 @@ fetchStudents();
   align-items: center;
   justify-content: center;
   text-decoration: none;
+  color: var(--footer-text);
+  gap: 6px;
+  font-size: 1rem;
 }
 
 .login-icon svg {

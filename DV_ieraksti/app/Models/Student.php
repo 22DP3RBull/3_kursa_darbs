@@ -25,20 +25,50 @@ class Student extends Model
         'checkedIn' => false,
     ];
 
-    public static function validate($data)
+    public static function validate($data, $ignoreId = null)
     {
-        $validator = Validator::make($data, [
-            'name' => 'required|string|max:255',
-            'surname' => 'required|string|max:255',
-            'room' => 'required|integer|between:101,528',
-            'floor' => 'required|integer|between:1,5',
-            'phone' => 'required|string|size:8',
-            'email' => 'required|string|email|unique:students,email|regex:/@rvt\.lv$/',
+        $rules = [
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                // Latvian letters, spaces, hyphens, apostrophes
+                'regex:/^[A-Za-zĀāČčĒēĢģĪīĶķĻļŅņŠšŪūŽž\s\'\-]+$/u'
+            ],
+            'surname' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[A-Za-zĀāČčĒēĢģĪīĶķĻļŅņŠšŪūŽž\s\'\-]+$/u'
+            ],
+            'room' => [
+                'required',
+                'integer',
+            ],
+            'floor' => [
+                'required',
+                'integer',
+                'between:1,5'
+            ],
+            'phone' => [
+                'required',
+                'regex:/^[0-9]{8}$/'
+            ],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'regex:/@rvt\.lv$/',
+                'max:255',
+                'unique:students,email' . ($ignoreId ? ',' . $ignoreId : ''),
+            ],
             'checkedIn' => 'boolean',
-        ]);
+        ];
+
+        $validator = Validator::make($data, $rules);
 
         $validator->after(function ($validator) use ($data) {
-            if (!self::isValidRoomForFloor($data['room'], $data['floor'])) {
+            if (!isset($data['room'], $data['floor']) || !self::isValidRoomForFloor($data['room'], $data['floor'])) {
                 $validator->errors()->add('room', 'The room number is not valid for the specified floor.');
             }
         });
@@ -48,9 +78,17 @@ class Student extends Model
         }
     }
 
-    private static function isValidRoomForFloor($room, $floor)
+    public static function isValidRoomForFloor($room, $floor)
     {
-        $roomFloor = (int) substr($room, 0, 1);
-        return $roomFloor === $floor;
+        $roomRanges = [
+            1 => [101, 128],
+            2 => [201, 228],
+            3 => [301, 328],
+            4 => [401, 428],
+            5 => [501, 528],
+        ];
+        if (!isset($roomRanges[$floor])) return false;
+        [$start, $end] = $roomRanges[$floor];
+        return $room >= $start && $room <= $end;
     }
 }

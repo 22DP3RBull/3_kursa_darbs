@@ -62,8 +62,8 @@
 
 /* General Layout */
 .admin-dashboard {
-  background-color: var(--background-color);
-  color: var(--text-color);
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -71,10 +71,31 @@
   font-family: 'Inter', sans-serif;
 }
 
-.content {
-  padding: 20px;
-  padding-bottom: 80px;
-  /* Prevents footer overlap */
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--navbar-background);
+  color: var(--navbar-text);
+  padding: 10px 20px;
+  position: fixed;
+  top: 10px;
+  left: 20px;
+  right: 20px;
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.navbar-left h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.navbar-right {
+  display: flex;
+  gap: 10px;
 }
 
 /* Header and Footer */
@@ -117,6 +138,25 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.footer-left {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.footer-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.footer-right {
+  display: flex;
+  align-items: center;
+}
+
 .footer a {
   color: var(--link-color);
   transition: text-decoration 0.2s ease;
@@ -131,44 +171,32 @@
   pointer-events: none; /* Disable interactions */
 }
 
-/* Navigation Bar */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: var(--navbar-background);
-  color: var(--navbar-text);
-  padding: 10px 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.navbar-left h1 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.navbar-right {
-  display: flex;
-  gap: 10px;
-}
-
-.nav-button {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background-color: var(--button-background);
-  color: var(--button-text);
+.theme-toggle {
+  background: none;
   border: none;
-  padding: 8px 15px;
-  border-radius: 6px;
   cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  padding: 5px;
+  border-radius: 6px; /* match mainpage/login */
 }
 
-.nav-button:hover {
-  background-color: var(--button-hover-background);
-  transform: translateY(-2px);
+.theme-toggle svg {
+  width: 24px;
+  height: 24px;
+  color: var(--footer-text);
+}
+
+.login-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--footer-text);
+}
+
+.login-icon svg {
+  width: 24px;
+  height: 24px;
+  color: var(--footer-text);
 }
 
 /* Buttons */
@@ -303,28 +331,11 @@ button {
   height: 24px;
 }
 
-/* Theme Toggle Button */
-.theme-toggle {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 5px;
-  transition: transform 0.2s ease, background-color 0.3s ease;
-}
-
-.theme-toggle img {
-  width: 24px;
-  height: 24px;
-}
-
-.theme-toggle:hover {
-  transform: scale(1.1); /* Slightly enlarge on hover */
-}
-
+/* Remove any circular or forced round background for theme-toggle */
 body:not(.dark-mode) .theme-toggle {
-  background-color: var(--button-hover-background); /* Add background for visibility */
-  border-radius: 50%; /* Make it circular */
-  padding: 10px; /* Add padding for better appearance */
+  background: none;
+  border-radius: 6px;
+  padding: 5px;
 }
 
 /* Filter Components */

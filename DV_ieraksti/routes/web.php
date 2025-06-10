@@ -6,6 +6,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\RoomController;
+use App\Http\Controllers\AdminRegisterController;
 
 Route::get('/', function () {
     return Inertia::render('MainPage');
@@ -52,6 +53,8 @@ Route::get('/students/{id}/time-since-last-action', [StudentController::class, '
 Route::get('/history/search', [StudentController::class, 'searchHistory'])->name('history.search');
 Route::get('/dashboard-stats', [StudentController::class, 'getDashboardStats'])->name('dashboard.stats');
 Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
+Route::get('/register', [AdminRegisterController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [AdminRegisterController::class, 'register']);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

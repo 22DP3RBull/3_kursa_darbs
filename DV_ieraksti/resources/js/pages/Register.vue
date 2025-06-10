@@ -3,27 +3,25 @@ import { ref, onMounted } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { LoaderCircle, Sun, Moon, Home } from 'lucide-vue-next';
 import InputError from '@/components/InputError.vue';
-import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import '../../css/auth.css';
 
 const form = useForm({
+  name: '',
   email: '',
   password: '',
-  remember: false,
+  password_confirmation: '',
+  admin_code: '',
 });
 
 const submit = () => {
-  form.post(route('login'), {
-    onFinish: () => form.reset('password'),
-  });
+  form.post(route('register'));
 };
 
 const isDarkMode = ref(localStorage.getItem('isDarkMode') === 'true');
 
-// Set dark mode class on mount
 onMounted(() => {
   if (isDarkMode.value) {
     document.body.classList.add('dark-mode');
@@ -45,19 +43,17 @@ const toggleDarkMode = () => {
 
 <template>
   <div>
-    <Head title="Login" />
+    <Head title="Register" />
 
     <!-- Navbar -->
     <nav class="navbar">
       <div class="navbar-left">
-        <h1>Admin Login</h1>
+        <h1>Admin Registration</h1>
       </div>
       <div class="navbar-right">
-        <a href="/" class="nav-icon-link">
-          <span class="icon-wrap">
-            <Home class="icon" />
-            <span class="btn-text">Main Page</span>
-          </span>
+        <a href="/login" class="nav-button">
+          <Home class="w-5 h-5 mr-2 text-white" />
+          Login Page
         </a>
       </div>
     </nav>
@@ -65,18 +61,27 @@ const toggleDarkMode = () => {
     <!-- Content -->
     <div class="content">
       <div class="container">
-        <h2>Welcome back admin!</h2>
+        <h2>Create a new admin</h2>
         <form @submit.prevent="submit">
           <div class="grid gap-3">
+            <div class="grid gap-2">
+              <Label for="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                required
+                autofocus
+                v-model="form.name"
+                placeholder="Full Name"
+              />
+              <InputError class="input-error" :message="form.errors.name" />
+            </div>
             <div class="grid gap-2">
               <Label for="email">Email address</Label>
               <Input
                 id="email"
                 type="email"
                 required
-                autofocus
-                :tabindex="1"
-                autocomplete="email"
                 v-model="form.email"
                 placeholder="email@example.com"
               />
@@ -88,22 +93,39 @@ const toggleDarkMode = () => {
                 id="password"
                 type="password"
                 required
-                :tabindex="2"
-                autocomplete="current-password"
                 v-model="form.password"
                 placeholder="Password"
               />
               <InputError class="input-error" :message="form.errors.password" />
             </div>
+            <div class="grid gap-2">
+              <Label for="password_confirmation">Confirm Password</Label>
+              <Input
+                id="password_confirmation"
+                type="password"
+                required
+                v-model="form.password_confirmation"
+                placeholder="Confirm Password"
+              />
+              <InputError class="input-error" :message="form.errors.password_confirmation" />
+            </div>
+            <div class="grid gap-2">
+              <Label for="admin_code">Admin Registration Code</Label>
+              <Input
+                id="admin_code"
+                type="password"
+                required
+                v-model="form.admin_code"
+                placeholder="Enter admin code"
+              />
+              <InputError class="input-error" :message="form.errors.admin_code" />
+            </div>
             <Button type="submit" class="mt-2" :disabled="form.processing">
               <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin mr-2 loader-circle" />
-              Log in
+              Register
             </Button>
           </div>
         </form>
-        <div style="margin-top: 16px;">
-          <a href="/register" class="text-link">Create a new admin</a>
-        </div>
       </div>
     </div>
 
@@ -121,63 +143,3 @@ const toggleDarkMode = () => {
     </footer>
   </div>
 </template>
-
-<style scoped>
-.navbar-right {
-  display: flex;
-  gap: 10px;
-}
-
-.nav-icon-link {
-  background: var(--button-background);
-  color: var(--button-text);
-  border: none;
-  border-radius: 6px;
-  padding: 8px 15px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  min-width: 44px;
-  min-height: 44px;
-  transition: background 0.3s;
-  overflow: hidden;
-}
-
-.nav-icon-link:hover {
-  background: var(--button-hover-background);
-}
-
-.icon-wrap {
-  display: flex;
-  align-items: center;
-  position: relative;
-}
-
-.icon {
-  width: 24px;
-  height: 24px;
-  color: var(--button-text);
-  transition: opacity 0.2s;
-  opacity: 1;
-}
-
-.btn-text {
-  margin-left: 8px;
-  font-size: 1rem;
-  color: var(--button-text);
-  opacity: 0;
-  transition: opacity 0.2s;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-.nav-icon-link:hover .icon {
-  opacity: 0;
-}
-
-.nav-icon-link:hover .btn-text {
-  opacity: 1;
-  pointer-events: auto;
-}
-</style>

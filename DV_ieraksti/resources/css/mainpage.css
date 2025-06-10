@@ -22,7 +22,7 @@
     --card-text: #000000;
 }
 
-body.dark-mode {
+.dark-mode {
     /* Dark mode colors */
     --background-color: #121212 !important;
     --text-color: #ffffff !important;
@@ -127,6 +127,20 @@ body {
     width: 24px;
     height: 24px;
     color: var(--footer-text);
+}
+
+.footer-left {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.footer-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
 }
 
 /* Content */
