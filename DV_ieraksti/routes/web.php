@@ -48,6 +48,7 @@ Route::get('/students/group-by-floor', [StudentController::class, 'groupByFloor'
 Route::get('/students/order-by', [StudentController::class, 'orderByField'])->name('students.orderByField');
 Route::get('/students/group-by-room', [StudentController::class, 'groupByRoom'])->name('students.groupByRoom');
 Route::get('/students/group-by-checked-in', [StudentController::class, 'groupByCheckedInStatus'])->name('students.groupByCheckedInStatus');
+Route::get('/students/sorted', [StudentController::class, 'sorted']); // <-- Added route
 Route::get('/history', [StudentController::class, 'fetchHistory'])->name('history.fetch');
 Route::get('/students/{id}/time-since-last-action', [StudentController::class, 'calculateTimeSinceLastAction'])->name('students.timeSinceLastAction');
 Route::get('/history/search', [StudentController::class, 'searchHistory'])->name('history.search');

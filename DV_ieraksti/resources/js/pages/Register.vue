@@ -138,7 +138,7 @@ const toggleDarkMode = () => {
         </button>
       </div>
       <div class="footer-center">
-        Contact us at: <a href="mailto:info@example.com" class="login-icon">info@example.com</a>
+        Contact us at:  <a href="mailto:info@rvt.lv" class="login-icon">info@rvt.lv</a>
       </div>
     </footer>
   </div>

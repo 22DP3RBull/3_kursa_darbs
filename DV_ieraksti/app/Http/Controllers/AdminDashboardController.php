@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Student;
+use Illuminate\Support\Facades\DB;
 
 class AdminDashboardController extends Controller
 {
@@ -16,7 +16,7 @@ class AdminDashboardController extends Controller
     public function index()
     {
         // Fetch necessary data for the admin dashboard
-        $studentsByFloor = Student::select('floor', \DB::raw('COUNT(*) as total_students'))
+        $studentsByFloor = Student::select('floor', DB::raw('COUNT(*) as total_students'))
             ->groupBy('floor')
             ->orderBy('floor', 'asc')
             ->get();

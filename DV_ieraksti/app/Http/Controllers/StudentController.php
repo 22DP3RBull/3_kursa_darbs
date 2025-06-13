@@ -16,9 +16,9 @@ class StudentController extends Controller
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%$search%")
-                  ->orWhere('surname', 'like', "%$search%")
-                  ->orWhere('room', 'like', "%$search%");
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('surname', 'like', "%{$search}%")
+                  ->orWhere('room', 'like', "%{$search}%");
             });
         }
 
@@ -35,7 +35,22 @@ class StudentController extends Controller
             }
         }
 
-        $students = $query->orderBy('name', 'asc')->get();
+        // Fix: use correct field name for checkedIn (should be all lowercase, as in migration)
+        $allowedFields = ['name', 'surname', 'room', 'floor', 'checkedIn'];
+        $field = $request->get('field', 'name');
+        $direction = $request->get('direction', 'asc');
+        if (in_array($field, $allowedFields)) {
+            if ($field === 'checkedIn') {
+                // Fix for SQLite/Postgres compatibility: use CAST if needed
+                $query->orderByRaw('CAST(checkedIn AS UNSIGNED) ' . (strtolower($direction) === 'desc' ? 'desc' : 'asc'));
+            } else {
+                $query->orderBy($field, strtolower($direction) === 'desc' ? 'desc' : 'asc');
+            }
+        } else {
+            $query->orderBy('name', 'asc');
+        }
+
+        $students = $query->get();
 
         return response()->json($students);
     }
@@ -43,12 +58,12 @@ class StudentController extends Controller
     public function store(Request $request)
     {
         try {
-            \App\Models\Student::validate($request->all());
+            Student::validate($request->all());
             $data = $request->only(['name', 'surname', 'room', 'floor', 'phone', 'email']);
             $data['checkedIn'] = false;
-            $student = \App\Models\Student::create($data);
+            $student = Student::create($data);
             return response()->json($student, 201);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -63,11 +78,11 @@ class StudentController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $student = \App\Models\Student::findOrFail($id);
-            \App\Models\Student::validate($request->all(), $student->id);
+            $student = Student::findOrFail($id);
+            Student::validate($request->all(), $student->id);
             $student->update($request->only(['name', 'surname', 'room', 'floor', 'phone', 'email', 'checkedIn']));
             return response()->json($student, 200);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -81,12 +96,10 @@ class StudentController extends Controller
                 'checkedIn' => 'required|boolean',
             ]);
 
-            $student = \App\Models\Student::findOrFail($id);
+            $student = Student::findOrFail($id);
 
-            // Set Riga timezone
             $now = now('Europe/Riga');
 
-            // Update checkedIn and last_check_in/last_check_out
             $student->checkedIn = $data['checkedIn'];
             if ($data['checkedIn']) {
                 $student->last_check_in = $now;
@@ -95,8 +108,7 @@ class StudentController extends Controller
             }
             $student->save();
 
-            // Save to history table
-            \DB::table('history')->insert([
+            DB::table('history')->insert([
                 'student_id' => $student->id,
                 'action' => $data['checkedIn'] ? 'check-in' : 'check-out',
                 'performed_at' => $now,
@@ -105,7 +117,7 @@ class StudentController extends Controller
             ]);
 
             return response()->json(['message' => 'Status updated successfully', 'student' => $student], 200);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -175,7 +187,7 @@ class StudentController extends Controller
 
     public function fetchHistory(Request $request)
     {
-        $query = \DB::table('history')
+        $query = DB::table('history')
             ->join('students', 'history.student_id', '=', 'students.id')
             ->select('history.*', 'students.name', 'students.surname', 'students.room', 'students.floor');
 
@@ -194,9 +206,9 @@ class StudentController extends Controller
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->where('students.name', 'like', "%$search%")
-                  ->orWhere('students.surname', 'like', "%$search%")
-                  ->orWhere('students.room', 'like', "%$search%");
+                $q->where('students.name', 'like', "%{$search}%")
+                  ->orWhere('students.surname', 'like', "%{$search}%")
+                  ->orWhere('students.room', 'like', "%{$search}%");
             });
         }
 
@@ -241,8 +253,8 @@ class StudentController extends Controller
 
         if ($request->has('search')) {
             $query->where(function ($q) use ($request) {
-                $q->where('students.name', 'like', '%' . $request->search . '%')
-                  ->orWhere('students.surname', 'like', '%' . $request->search . '%');
+                $q->where('students.name', 'like', "%{$request->search}%")
+                  ->orWhere('students.surname', 'like', "%{$request->search}%");
             });
         }
 
@@ -275,5 +287,49 @@ class StudentController extends Controller
             'checkedInCount' => $checkedInCount,
             'checkedOutCount' => $checkedOutCount,
         ]);
+    }
+
+    public function sorted(Request $request)
+    {
+        $query = Student::query();
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('surname', 'like', "%{$search}%")
+                  ->orWhere('room', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('floor')) {
+            $query->where('floor', $request->input('floor'));
+        }
+
+        if ($request->has('checkedIn') && $request->input('checkedIn') !== null && $request->input('checkedIn') !== '') {
+            $checkedIn = $request->input('checkedIn');
+            if ($checkedIn === 'true' || $checkedIn === 1 || $checkedIn === true) {
+                $query->where('checkedIn', true);
+            } elseif ($checkedIn === 'false' || $checkedIn === 0 || $checkedIn === false) {
+                $query->where('checkedIn', false);
+            }
+        }
+
+        $field = $request->get('field', 'name');
+        $direction = $request->get('direction', 'asc');
+        $allowedFields = ['name', 'surname', 'room', 'floor', 'checkedIn'];
+        if (in_array($field, $allowedFields)) {
+            if ($field === 'checkedIn') {
+                $query->orderByRaw('CAST(checkedIn AS UNSIGNED) ' . (strtolower($direction) === 'desc' ? 'desc' : 'asc'));
+            } else {
+                $query->orderBy($field, strtolower($direction) === 'desc' ? 'desc' : 'asc');
+            }
+        } else {
+            $query->orderBy('name', 'asc');
+        }
+
+        $students = $query->get();
+
+        return response()->json($students);
     }
 }
